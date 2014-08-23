@@ -228,20 +228,37 @@ class Filesystem
      */
     public function copyThenRemove($source, $target)
     {
+        $this->copy($source, $target);
+
+        $this->removeDirectoryPhp($source);
+    }
+
+    /**
+     * Copies the source to the target without using processes
+     *
+     * @param string $source
+     * @param string $target
+     * @return bool Whether the copy worked or not
+     */
+    public function copy($source, $target)
+    {
         $it = new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::SELF_FIRST);
         $this->ensureDirectoryExists($target);
 
+        $allCopiesSuccessful = true;
         foreach ($ri as $file) {
             $targetPath = $target . DIRECTORY_SEPARATOR . $ri->getSubPathName();
             if ($file->isDir()) {
                 $this->ensureDirectoryExists($targetPath);
             } else {
-                copy($file->getPathname(), $targetPath);
+                if (!copy($file->getPathname(), $targetPath)) {
+                    $allCopiesSuccessful = false;
+                }
             }
         }
 
-        $this->removeDirectoryPhp($source);
+        return $allCopiesSuccessful;
     }
 
     public function rename($source, $target)
