@@ -12,7 +12,6 @@
 
 namespace Composer\Command;
 
-use Composer\Util\Filesystem;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -173,8 +172,7 @@ EOT
     {
         if ($isWindows) {
             // use a normal copy for Windows
-            $fs = new Filesystem();
-            return $fs->copy($sourcePhar, $targetPath);
+            return copy($sourcePhar, $targetPath);
         } else {
             // use a command with "sudo", which is likely needed
             $cmd = sprintf('sudo cp %s %s', $sourcePhar, $targetPath);
